@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const converter = require("xml-js");
 
 require("dotenv").config({ path: `${__dirname}/../.env` });
 
 router.post("/photos", async (req, res) => {
-  const imageData = req.files.steppico.data;
+  const imageData = req.files.image.data;
   const responseFromMS = await axios({
     method: "post",
     url:
@@ -34,7 +35,14 @@ router.post("/photos", async (req, res) => {
       text: stringText
     }
   });
-  res.send("I have been naughty... ( ͡° ͜ʖ ͡°)");
+  const xmlString = converter.xml2json(responseFromMStext.data);
+  const en = responseFromMS.data.description.tags;
+  const ja = JSON.parse(xmlString).elements[0].elements[0].text.split(",");
+  const final = {};
+  for (let i = 0; i < en.length; i++) {
+    final[en[i]] = ja[i];
+  }
+  res.status(200).send(final);
 });
 
 router.get("/", (req, res) => {
