@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const convert = require("xml-js");
 
 require("dotenv").config({ path: `${__dirname}/../.env` });
 
@@ -18,6 +19,7 @@ router.post("/photos", async (req, res) => {
     },
     data: imageData
   });
+
   const stringText = responseFromMS.data.description.tags.toString();
 
   const responseFromMStext = await axios({
@@ -34,6 +36,9 @@ router.post("/photos", async (req, res) => {
       text: stringText
     }
   });
+  const extractedData = convert.xml2json(responseFromMStext.data);
+  console.log("From XML to JSON: ", JSON.parse(extractedData));
+
   res.send("I have been naughty... ( ͡° ͜ʖ ͡°)");
 });
 
