@@ -34,8 +34,6 @@ router.post("/photos", async (req, res) => {
       text: stringText
     }
   });
-  console.log("from MS vision", responseFromMS.data.description.tags);
-  console.log("here the translate", responseFromMStext.data);
   res.send("I have been naughty... ( ͡° ͜ʖ ͡°)");
 });
 
