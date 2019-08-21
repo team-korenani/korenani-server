@@ -4,8 +4,8 @@ const api = require("./controllers");
 const fileUpload = require("express-fileupload");
 const port = process.env.PORT || 4000;
 
-app.use(fileUpload());
-app.use("/api", express.json(), api);
+// app.use(fileUpload());
+app.use("/api", fileUpload(), express.json(), api);
 
 app.get("*", (req, res) => {
   res.status(404).send("Go is not here at the moment!");
