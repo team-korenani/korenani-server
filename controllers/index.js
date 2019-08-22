@@ -36,6 +36,7 @@ router.post("/photos", async (req, res) => {
   const resultMapped = resultFiltered2.map(item => {
     return item.name;
   });
+
   const stringText = resultMapped.toString();
 
   // example sentences in EN
@@ -53,13 +54,12 @@ router.post("/photos", async (req, res) => {
         .then(resultArr => {
           return resultArr.data.example.splice(0, 3);
         })
-        .catch(e => console.log("mah bad!", e));
+        .catch(e => console.log(e));
     })
   );
 
-  console.log("examples: ", exampleSentences);
   if (exampleSentences[0] === undefined) {
-    res.status(500).send("check log");
+    res.sendStatus(500);
   }
 
   //send stringify array to MS text API to translate
