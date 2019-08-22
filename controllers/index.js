@@ -6,6 +6,7 @@ const converter = require("xml-js");
 require("dotenv").config({ path: `${__dirname}/../.env` });
 
 router.post("/photos", async (req, res) => {
+  if (!req.files) res.status(500).send("Something went wrong!");
   const imageData = req.files.image.data;
   const responseFromMS = await axios({
     method: "post",
@@ -19,11 +20,6 @@ router.post("/photos", async (req, res) => {
     },
     data: imageData
   });
-<<<<<<< HEAD
-
-  const stringText = responseFromMS.data.description.tags.toString();
-=======
->>>>>>> 444c90b5e7901130b7476f1b219215c490d56ec1
 
   const resultFiltered2 = responseFromMS.data.tags.filter(item => {
     if (item.confidence > 0.85) {
@@ -34,14 +30,37 @@ router.post("/photos", async (req, res) => {
   //edge case if no confidence greater then 0.85 or too much results over 0.85
   if (resultFiltered2.length === 0) {
     res.send("I'm not quite sure... please take a picture again");
-  } else if (resultFiltered2.length > 5) {
-    resultFiltered2.splice(5);
+  } else if (resultFiltered2.length > 3) {
+    resultFiltered2.splice(3);
   }
-
   const resultMapped = resultFiltered2.map(item => {
     return item.name;
   });
   const stringText = resultMapped.toString();
+
+  // example sentences in EN
+  const exampleSentences = await Promise.all(
+    resultMapped.map(async word => {
+      return await axios({
+        method: "get",
+        url: "https://twinword-word-graph-dictionary.p.rapidapi.com/example/",
+        headers: {
+          "X-RapidAPI-Host": "twinword-word-graph-dictionary.p.rapidapi.com",
+          "X-RapidAPI-Key": process.env.KEY
+        },
+        params: { entry: word }
+      })
+        .then(resultArr => {
+          return resultArr.data.example.splice(0, 3);
+        })
+        .catch(e => console.log("mah bad!", e));
+    })
+  );
+
+  console.log("examples: ", exampleSentences);
+  if (exampleSentences[0] === undefined) {
+    res.status(500).send("check log");
+  }
 
   //send stringify array to MS text API to translate
   const responseFromMStext = await axios({
@@ -66,6 +85,7 @@ router.post("/photos", async (req, res) => {
   const final = {};
   for (let i = 0; i < en.length; i++) {
     final[en[i]] = ja[i];
+    final[`${en[i]} example`] = exampleSentences[i];
   }
   res.status(200).send(final);
 });
