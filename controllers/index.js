@@ -6,7 +6,7 @@ const converter = require("xml-js");
 require("dotenv").config({ path: `${__dirname}/../.env` });
 
 router.post("/photos", async (req, res) => {
-  let arrayOfWords = req.body;
+  let arrayOfWords = req.body.keywords;
 
   const stringText = arrayOfWords.toString();
 
