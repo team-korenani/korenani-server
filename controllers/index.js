@@ -6,34 +6,21 @@ const converter = require("xml-js");
 require("dotenv").config({ path: `${__dirname}/../.env` });
 
 router.post("/photos", async (req, res) => {
-  if (!req.files) res.status(500).send("Something went wrong!");
-  const imageData = req.files.image.data;
-  const responseFromMS = await axios({
-    method: "post",
-    url:
-      "https://microsoft-azure-microsoft-computer-vision-v1.p.rapidapi.com/analyze?visualfeatures=Tags",
-    headers: {
-      "X-RapidAPI-Host":
-        "microsoft-azure-microsoft-computer-vision-v1.p.rapidapi.com",
-      "X-RapidAPI-Key": process.env.KEY,
-      "Content-Type": "application/octet-stream"
-    },
-    data: imageData
-  });
+  let arrayOfWords = req.body.image;
 
-  const resultFiltered2 = responseFromMS.data.tags.filter(item => {
+  const resultFiltered = arrayOfWords.filter(item => {
     if (item.confidence > 0.85) {
       return item.name;
     }
   });
 
   //edge case if no confidence greater then 0.85 or too much results over 0.85
-  if (resultFiltered2.length === 0) {
+  if (resultFiltered.length === 0) {
     res.send("I'm not quite sure... please take a picture again");
-  } else if (resultFiltered2.length > 3) {
-    resultFiltered2.splice(3);
+  } else if (resultFiltered.length > 3) {
+    resultFiltered.splice(3);
   }
-  const resultMapped = resultFiltered2.map(item => {
+  const resultMapped = resultFiltered.map(item => {
     return item.name;
   });
 
