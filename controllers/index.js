@@ -4,9 +4,8 @@ const axios = require("axios");
 const converter = require("xml-js");
 
 require("dotenv").config({ path: `${__dirname}/../.env` });
-
 router.post("/photos", async (req, res) => {
-  if (!req.files) res.status(500).send("Something went wrong!");
+  console.log("I am hereeeee");
   const imageData = req.files.image.data;
   const responseFromMS = await axios({
     method: "post",
@@ -82,10 +81,13 @@ router.post("/photos", async (req, res) => {
   const xmlString = converter.xml2json(responseFromMStext.data);
   const en = resultMapped;
   const ja = JSON.parse(xmlString).elements[0].elements[0].text.split(",");
-  const final = {};
+  const final = [];
   for (let i = 0; i < en.length; i++) {
-    final[en[i]] = ja[i];
-    final[`${en[i]} example`] = exampleSentences[i];
+    const word = {};
+    word["en"] = en[i];
+    word["ja"] = ja[i];
+    word["ex"] = exampleSentences[i];
+    final.push(word);
   }
   res.status(200).send(final);
 });
